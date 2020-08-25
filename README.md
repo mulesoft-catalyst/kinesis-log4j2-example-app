@@ -1,0 +1,1 @@
+# kinesis-log4j2-example-app
