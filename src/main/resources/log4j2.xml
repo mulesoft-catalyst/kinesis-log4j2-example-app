@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration packages="com.kdgregory.log4j2.aws">
+
+    <!--These are some of the loggers you can enable. 
+        There are several more you can find in the documentation. 
+        Besides this log4j configuration, you can also use Java VM environment variables
+        to enable other logs like network (-Djavax.net.debug=ssl or all) and 
+        Garbage Collector (-XX:+PrintGC). These will be append to the console, so you will 
+        see them in the mule_ee.log file. -->
+
+    <Appenders>
+        <KinesisAppender name="KINESIS">
+            <streamName>mule-app-logger</streamName>
+            <clientRegion>ap-southeast-2</clientRegion>
+            <JsonLayout complete="false" compact="true" eventEol="true" properties="true" locationInfo="true">
+                <KeyValuePair key="applicationName" value="${sys:app.name}" />
+                <KeyValuePair key="environment" value="${sys:mule.env:-dev}" />
+                <KeyValuePair key="accountId" value="${awslogs:awsAccountId}" />
+                <KeyValuePair key="timestamp" value="$${date:yyyy-MM-dd'T'HH:mm:ss.SSSZ}" />
+                <KeyValuePair key="muleIp" value="${sys:server.ip}" />
+                <KeyValuePair key="hostname" value="${sys:server.host}" />
+                <!-- required -->
+                <KeyValuePair key="region" value="ap-southeast-2" />
+            </JsonLayout>
+        </KinesisAppender>
+    </Appenders>
+    <Loggers>
+        
+        <!-- Http Logger shows wire traffic on DEBUG. -->
+        <!--AsyncLogger name="org.mule.service.http.impl.service.HttpMessageLogger" level="DEBUG" /-->
+        <AsyncLogger name="org.mule.service.http" level="WARN"/>
+        <AsyncLogger name="org.mule.extension.http" level="WARN"/>
+    
+		<!-- Mule logger -->        
+        <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>
+ 
+        <AsyncRoot level="INFO">
+            <AppenderRef ref="KINESIS" />
+        </AsyncRoot>
+    </Loggers>
+</Configuration>
